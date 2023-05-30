@@ -11,7 +11,7 @@ def diff2(f1, f2, val):
     else:
         raise Exception('wrong dimension for val')
 
-def newt(f1, f2, F, err, val=[0,0], n=100):
+def newt(f1, f2, F, err=1e-10, val=[0,0], n=100):
     #initialisation
     m = n
     df = diff2(f1, f2, val)
