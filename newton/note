@@ -1,0 +1,2 @@
+pls note for diff2 and newt to work, f1 and f2 need to have both variables x and y i.e
+f1 = lambda x, y : x + 0 * y instead of f1 = lambda x, y : x 
