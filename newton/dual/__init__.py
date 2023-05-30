@@ -1,0 +1,1 @@
+from .dual import Dual, log_d, exp_d, sin_d, sigmoid_d, cos_d
