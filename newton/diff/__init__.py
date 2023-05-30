@@ -1,1 +1,1 @@
-from .diff import diff2, newt
+from .diff import diff1, diff2, newt
