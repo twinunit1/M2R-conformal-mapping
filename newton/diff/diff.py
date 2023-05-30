@@ -2,10 +2,14 @@ import dual as d
 import numpy as np
 
 def diff2(f1, f2, val):
-    x = []
-    for k in range(len(val)):
-        x += [d.Dual(real=val[k], dual={f'x{k}': 1})]
-    return np.array([list(f1(*x).dual.values()), list(f2(*x).dual.values())])
+    if len(val)==2:
+        x = []
+        for k in range(2):
+            x += [d.Dual(real=val[k], dual={f'x{k}': 1})]
+        return np.array([[f1(*x).dual[f'x{k}'] for k in range(2)],
+                         [f2(*x).dual[f'x{k}'] for k in range(2)]])
+    else:
+        raise Exception('wrong dimension for val')
 
 def newt(f1, f2, F, err, val=[0,0], n=100):
     #initialisation
@@ -24,4 +28,4 @@ def newt(f1, f2, F, err, val=[0,0], n=100):
     if m>0:
         return nval - delta
     else: 
-        return 'max iteration reached'
+        raise Exception('max iteration reached')
