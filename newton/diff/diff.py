@@ -1,6 +1,10 @@
 import dual as d
 import numpy as np
 
+def diff1(f1, val):
+    x = f1(d.Dual(real=val, dual={'1': 1}))
+    return x.dual['1']
+
 def diff2(f1, f2, val):
     if len(val)==2:
         x = []
