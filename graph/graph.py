@@ -34,6 +34,6 @@ def splt2(h, cmax=10, n=150, m = 500, xbound = [-2,2], ybound = [-2,2], figsize=
 
     plt.figure(figsize=figsize)
     plt.contour(xval, yval, Im, np.linspace(-cmax,cmax,n), colors='black', linestyles='solid')
-    plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'], )
+    plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'])
     plt.axis(xbound+ybound)
     plt.axis('scaled')
