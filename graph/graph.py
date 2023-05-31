@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def splt(h, n=10, xbound = [-2,2], ybound = [-2,2], m = 500):
+def splt(h, n=16, xbound = [-2,2], ybound = [-2,2], m = 500):
     x = np.linspace(xbound[0],xbound[1],m)
     y = np.linspace(xbound[0],ybound[1],m)
     xval, yval = np.meshgrid(x,y)
@@ -15,7 +15,7 @@ def splt(h, n=10, xbound = [-2,2], ybound = [-2,2], m = 500):
     Im = np.where(Re>=0, Im, np.nan)
 
     plt.axis('scaled')
-    plt.contour(xval, yval, Im, n, colors='black', linestyles='solid')
+    plt.contour(xval, yval, Im, n-1, colors='black', linestyles='solid')
     plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'], )
     plt.axis(xbound+ybound)
     
