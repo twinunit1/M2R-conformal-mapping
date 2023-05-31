@@ -1,16 +1,20 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def splt(h, n=10, xbound = [-10,10], ybound = [-10,10], m = 5000):
+
+def splt(h, n=10, xbound = [-2,2], ybound = [-2,2], m = 500):
     x = np.linspace(xbound[0],xbound[1],m)
     y = np.linspace(xbound[0],ybound[1],m)
     xval, yval = np.meshgrid(x,y)
-    z = xval .+ yval * 1j
+    z = xval + yval * 1j
     f = h(z)
     Re = f.real
     Im = f.imag
-    plt.contour(xval, yval, Im, [2*n], colors='black')
-    plt.contour(xval, yval, Re, [0:1:1], colors=['red','blue'])
-    plt.axis(xbound+ybound)
- 
+    Im = Im.astype(float)
+    Im = np.where(Re<=1, Im, np.nan)
+    Im = np.where(Re>=0, Im, np.nan)
 
+    plt.figure(figsize=[7.5,7.5])
+    plt.contour(xval, yval, Im, 2*n, colors='black', linestyles='solid')
+    plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'], )
+    plt.axis(xbound+ybound)
