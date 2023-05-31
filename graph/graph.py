@@ -15,7 +15,7 @@ def splt(h, n=10, xbound = [-2,2], ybound = [-2,2], m = 500):
     Im = np.where(Re>=0, Im, np.nan)
 
     plt.axis('scaled')
-    plt.contour(xval, yval, Im, 2*n, colors='black', linestyles='solid')
+    plt.contour(xval, yval, Im, n, colors='black', linestyles='solid')
     plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'], )
     plt.axis(xbound+ybound)
     
