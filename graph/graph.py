@@ -16,7 +16,7 @@ def splt(h, n=16, m = 500, xbound = [-2,2], ybound = [-2,2], figsize=[10,10]):
 
     plt.figure(figsize=figsize)
     plt.contour(xval, yval, Im, n-1, colors='black', linestyles='solid')
-    plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'], )
+    plt.contour(xval, yval, Re, [0,1], colors=['blue', 'red'])
     plt.axis(xbound+ybound)
     plt.axis('scaled')
     
