@@ -5,4 +5,4 @@ build-backend = "hatchling.build"
 [project]
 name = "dual"
 version = "0.1"
-dependencies = ["numpy"]
+dependencies = ["numpy", "matplotlib"]
