@@ -11,8 +11,12 @@ def splt(h, n=16, m = 500, xbound = [-2,2], ybound = [-2,2], figsize=[10,10]):
     Re = f.real
     Im = f.imag
     Im = Im.astype(float)
+    
     Im = np.where(Re<=1, Im, np.nan)
     Im = np.where(Re>=0, Im, np.nan)
+    
+    Im = np.where(Im<np.nanmax(Im)-1e-2, Im, np.nan)
+    Im = np.where(Im>np.nanmin(Im)+1e-2, Im, np.nan)
 
     plt.figure(figsize=figsize)
     plt.contour(xval, yval, Im, n-1, colors='black', linestyles='solid')
