@@ -13,18 +13,18 @@ def diff2(f1, f2, val):
     else:
         raise Exception('wrong dimension for val')
 
-def newt(f1, f2, f3, val, err=1e-10, n=100):
+def newt(f1, f2, F, val, err=1e-10, n=100):
     #initialisation
     m = n
     df = diff2(f1, f2, val)
-    f = np.array([-f1(*val), -f2(*val)]) + np.array(f3)
+    f = np.array([-f1(*val), -f2(*val)]) + np.array(F)
     delta = np.linalg.solve(df, f)
     nval = np.array(val)
     #loop
     while 1 in [abs(a) >= err for a in delta] and m > 0:
         nval = nval + delta
         df = diff2(f1, f2, nval)
-        f = np.array([-f1(*nval), -f2(*nval)]) + np.array(f3)
+        f = np.array([-f1(*nval), -f2(*nval)]) + np.array(F)
         delta = np.linalg.solve(df, f)
         m -= 1
     if m > 0:
@@ -38,6 +38,6 @@ def ceff(f1, f2, maxd):
 
     for i in range(len(D)):
         val = [D[i],1/2]
-        f3 = [D[i], D[i]+1]
-        pval.append(-2*np.pi/np.log(newt(f1, f2, f3, val)[1]))
+        F = [D[i], D[i]+1]
+        pval.append(-2*np.pi/np.log(newt(f1, f2, F, val)[1]))
     plt.plot(D,pval)
