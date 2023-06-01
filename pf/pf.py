@@ -7,7 +7,7 @@ def C(p, eps=1e-20):
         q = p.real
     else:
         q = p
-    if q!=0:
+    if 0<abs(q)<1:
         n=2
         c = (1-p**2)**2
         while p**(2*n)>=eps:
@@ -26,7 +26,7 @@ def P(z,p, eps=1e-20):
         q = p.real
     else:
         q = p
-    if q!=0:
+    if 0<abs(q)<1:
         n=2
         a = (1-z*p**2)*(1-(p**2)/z)
         while np.abs((Z+1/Z)*p**(2*n)-p**(4*n))>=eps:
