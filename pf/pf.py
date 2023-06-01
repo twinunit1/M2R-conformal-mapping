@@ -3,7 +3,11 @@ import numpy as np
 
 
 def C(p, eps=1e-20):
-    if 0<=p<1:
+    if isinstance(p, Dual):
+        q = p.real
+    else:
+        q = p
+    if q!=0:
         n=2
         c = (1-p**2)**2
         while p**(2*n)>=eps:
@@ -18,7 +22,11 @@ def P(z,p, eps=1e-20):
         Z = z.real
     else:
         Z = z
-    if 0<=p<1:
+    if isinstance(p, Dual):
+        q = p.real
+    else:
+        q = p
+    if q!=0:
         n=2
         a = (1-z*p**2)*(1-(p**2)/z)
         while np.abs((Z+1/Z)*p**(2*n)-p**(4*n))>=eps:
