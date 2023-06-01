@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def splt(h, n = 16, m = 500, sing = False, a = 1, xbound = [-2,2], ybound = [-2,2], figsize = 10, ax = True):
+def splt(h, n = 16, m = 500, sing = True, a = 1, xbound = [-2,2], ybound = [-2,2], figsize = 10, ax = True):
     x = np.linspace(xbound[0], xbound[1], m)
     y = np.linspace(ybound[0], ybound[1], m)
     xval, yval = np.meshgrid(x, y)
@@ -15,7 +15,7 @@ def splt(h, n = 16, m = 500, sing = False, a = 1, xbound = [-2,2], ybound = [-2,
     Im = np.where(Re <= 1, Im, np.nan)
     Im = np.where(Re >= 0, Im, np.nan)
     
-    if sing:
+    if not sing:
         Im = np.where(Im < np.nanmax(Im) - 10 ** (-a), Im, np.nan)
         Im = np.where(Im > np.nanmin(Im) + 10 ** (-a), Im, np.nan)
 
