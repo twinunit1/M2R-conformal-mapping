@@ -36,12 +36,11 @@ def newt(f1, f2, F, val, err=1e-10, n=100):
     else: 
         raise Exception('max iteration reached')
         
-def ceff(f1, f2, maxd):
-    D = np.arange(1,1000,1)
+def ceff(f1, f2, fd, fval, mind=1, maxd=1000, m=1000, axis=1):
+    d = np.linspace(mind,maxd,m)
     pval = []
-
-    for i in range(len(D)):
-        val = [D[i],1/2]
-        F = [D[i], D[i]+1]
-        pval.append(-2*np.pi/np.log(newt(f1, f2, F, val)[1]))
-    plt.plot(D,pval)
+    for i in d:
+        val = fval(i)
+        F = fd(i)
+        pval.append(-2*np.pi/np.log(newt(f1, f2, F, val)[axis]))
+    plt.plot(d,pval)
