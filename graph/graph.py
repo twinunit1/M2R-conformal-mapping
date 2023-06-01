@@ -4,7 +4,7 @@ import numpy as np
 
 def splt(h, n = 16, m = 500, sing = False, a = 1, xbound = [-2,2], ybound = [-2,2], figsize = 10, ax = True):
     x = np.linspace(xbound[0], xbound[1], m)
-    y = np.linspace(xbound[0], ybound[1], m)
+    y = np.linspace(ybound[0], ybound[1], m)
     xval, yval = np.meshgrid(x, y)
     z = xval + yval * 1j
     f = h(z)
