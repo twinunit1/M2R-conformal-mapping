@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from diff import *
 
 
 def hplot(h, n=30, m = 500, xbound = [-2,2], ybound = [-2,2], figsize= 10, ax=True, shift=False, theta=np.pi/2, s=1/np.log(p)):
