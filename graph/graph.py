@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def splt(h, n=10, m = 500, xbound = [-2,2], ybound = [-2,2], figsize= 10, ax=True, shift=False, theta=0, s=np.log(p)):
+def splt(h, n=30, m = 500, xbound = [-2,2], ybound = [-2,2], figsize= 10, ax=True, shift=False, theta=np.pi/2, s=np.log(p)):
     x = np.linspace(xbound[0],xbound[1],m)
     y = np.linspace(ybound[0],ybound[1],m)
     xval, yval = np.meshgrid(x,y)
