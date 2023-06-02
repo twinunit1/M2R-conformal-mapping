@@ -13,7 +13,7 @@ def C(p, eps=1e-10):
         while p**(2*n)>=eps:
             c *= (1-p**(2*n))**2
             n +=1
-        return c
+        return c * (1-p**(2*n))**2
     else:
         raise Exception('invalid p')
 
@@ -32,7 +32,7 @@ def P(z,p, eps=1e-10):
         while np.any(np.abs((Z+1/Z)*q**(2*n)-q**(4*n))>=eps):
             a *= (1-z*p**(2*n))*(1-(p**(2*n))/z)
             n +=1
-        return (1-z)*a
+        return (1-z) * a * (1-z*p**(2*n))*(1-(p**(2*n))/z)
     else:
         raise Exception('invalid p')
     
