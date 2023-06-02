@@ -75,7 +75,7 @@ def newt2(f1, f2, F, val, err=1e-10, n=50, method='l'):
     else:
         raise Exeption('invalid method')
         
-def ceff(f1, f2, fd = lambda D : [D,D+1], fval = lambda D : [D, 1/2+0*D], mind=1, maxd=10000, m=1000, axis=1, method='l'):
+def ceff(f1, f2, fd = lambda D : [D,D+1], fval = lambda D : [D, 1/2+0*D], mind=1, maxd=10000, m=1000, axis=1, method='a'):
     if method == 'l':
         d = np.linspace(mind,maxd,m)
         pval = []
