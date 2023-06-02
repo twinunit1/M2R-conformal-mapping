@@ -4,20 +4,42 @@ import matplotlib.pyplot as plt
 
 
 def diff1(f1, val):
-    x = f1(d.Dual(real=val, dual={'1': 1}))
+    x = f1(Dual(real=val, dual={'1': 1}))
     return x.dual['1']
 
-def diff2(f1, f2, val):
-    if len(val)==2:
+
+def diff2(f1, f2, val, method='l'):  #Jacobean matrix, set method='a' if val is an array
+    if method == 'l':
+        n = len(val)
         x = []
-        for k in range(2):
-            x += [d.Dual(real=val[k], dual={f'x{k}': 1})]
-        return np.array([[f1(*x).dual[f'x{k}'] for k in range(2)],
-                         [f2(*x).dual[f'x{k}'] for k in range(2)]])
+        for k in range(n):
+            x += [Dual(real=val[k], dual={f'x{k}': 1})]
+        return np.array([[f1(*x).dual[f'x{k}'] for k in range(n)],
+                         [f2(*x).dual[f'x{k}'] for k in range(n)]])
+    elif method == 'a':
+        m, n = np.shape(val)
+        x = []
+        for k in range(n):
+            x += [Dual(real=0, dual={f'x{k}': 1})]
+        xval = val + np.tile(x,(m,1))
+        return np.array([[[f1(*xval[i]).dual[f'x{k}'] for k in range(n)], [f2(*xval[i]).dual[f'x{k}'] for k in range(n)]] for i in range(m)])
     else:
-        raise Exception('wrong dimension for val')
-        
-def newt1(f1, F, val, err=1e-10, n=50):
+        raise Exception('invalid method')
+
+
+def newt1(f1, F, val, eps=1e-10, n=50): 
+    '''
+        One-dimension Newtons method for solving f1(x)=F. 
+
+        Parameters: 
+            f1 (function): Function of equation 
+            F (float/array): Desired output(s) of f1 
+            val (float/array): Point(s) of initial guess 
+            *eps (float): Desired error bound 
+
+        Return:  
+            estimate (float/array): Estimate of solution(s) with the same type as val 
+    '''
     #initialisation
     m = n
     df = diff1(f1, val)
@@ -36,7 +58,21 @@ def newt1(f1, F, val, err=1e-10, n=50):
     else: 
         raise Exception('max iteration reached')    
 
-def newt2(f1, f2, F, val, err=1e-10, n=50, method='l'):
+def newt2(f1, f2, F, val, eps=1e-10, n=100, method='l'):  
+    '''
+        Two-dimension Newtons method for solving f1(x)=F1 and f2(x)=F2. 
+
+        Parameters: 
+            f1 (function): First function 
+            f2 (function): Second function 
+            F (list/array): Desired output(s) of f1, f2 in form of [F1, F2]     
+            val (list/array): Point(s) of initial guess in form of [val1, val2] 
+            *eps (float): Desired error bound 
+            *method (string): if method = 'a' then F and val must be arrays 
+
+        Return:  
+            estimate (array): Estimate of solution(s) 
+    '''
     m = n
     if method == 'l':
         #initialisation
@@ -73,21 +109,35 @@ def newt2(f1, f2, F, val, err=1e-10, n=50, method='l'):
         else: 
             raise Exception('max iteration reached')
     else:
-        raise Exeption('invalid method')
-        
-def ceff(f1, f2, fd = lambda D : [D,D+1], fval = lambda D : [D, 1/2+0*D], mind=1, maxd=10000, m=1000, axis=1, method='a'):
-    if method == 'l':
-        d = np.linspace(mind,maxd,m)
-        pval = []
-        for i in d:
-            val = fval(i)
-            F = fd(i)
-            pval.append(-2*np.pi/np.log(newt2(f1, f2, F, val)[axis]))
-        plt.plot(d,pval)
-    elif method == 'a':
-        d = np.linspace(mind,maxd,m)
-        val = np.array(fval(d)).T
-        F = np.array(fd(d)).T
-        plt.plot(d,-2*np.pi/np.log(newt2(f1, f2, F, val, method='a').T[1]))
-    else:
         raise Exception('invalid method')
+    
+
+def cont(f1, f2, d2, val, d1=1, F0=[0,1], n=10, m=10): 
+    '''
+        Continuation method for solving f1(x)=d1 and f2(x)=d2. 
+
+        Parameters: 
+            f1 (function): First function 
+            f2 (function): Second function 
+            d2 (float): Desired output of f2 
+            val (list): Point of initial guess in form of [val1, val2] 
+            *d1 (float): Desired output of f1 
+            *F0 (list): Output of initial guess in form of [f1(val), f2(val)] 
+            *n (int): Number of iterations to reach d1 
+            *m (int): Number of iterations to reach d2 
+
+        Return:  
+        estimate (float): Estimate of solution 
+    '''
+    s = np.linspace(((n-1)*F0[0]+d1)/n,d1,n)
+    x = val
+    for i in s:
+        F = [i, F0[1]]
+        x = newt2(f1, f2, F, x)
+
+    t = np.linspace((F0[1]+d2)/m, d, m)
+    for i in t:
+        F = [d1, i]
+        x = newt2(f1, f2, F, x)
+
+    return x
