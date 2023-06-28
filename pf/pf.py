@@ -78,3 +78,32 @@ def wA(z,a,p, eps=1e-10):  #prime function of annulus
             estimate (float/dual/array): Estimate of P at z, a, p with the same type as z, a and p 
     '''
     return -a*P(z/a,p,eps**2)/C(p, eps**2)
+    
+def K(z, a, p, eps=1e-10, t=1000):
+    m = t
+    if isinstance(z, Dual):
+        Z = z.real
+    else:
+        Z = z
+    if isinstance(p, Dual):
+        q = p.real
+    else:
+        q = p
+    if isinstance(a, Dual):
+        A = a.real
+    else:
+        A = a
+    if q > 1:
+        raise Exception("Invalid p")
+    b =  -(z / a) / (1 - z / a) + (p ** 2) * (-z / a + a / z) / (1 - (p ** 2) * (z / a + a / z - (p ** 2)))
+    n = 2
+    while np.abs((q ** (2 * n)) * (-Z / A + A / Z) / (
+            1 - (q ** (2 * n)) * (Z / A + A / Z - (q ** (2 * n))))) >= eps and m > 0:
+        b += (p ** (2 * n)) * (-z / a + a / z) / (1 - (p ** (2 * n)) * (z / a + a / z - (p ** (2 * n))))
+        n += 1
+        m -= 1
+    if m > 0:
+        return b + (p ** (2 * n)) * (-z / a + a / z) / (1 - (p ** (2 * n)) * (z / a + a / z - (p ** (2 * n))))
+    else:
+        raise Exception("Max iteration reached")
+
