@@ -47,6 +47,40 @@ def diff2(f1, f2, val, method='l'):  #Jacobean matrix, set method='a' if val is 
     else:
         raise Exception('invalid method')
 
+def diff3(f1, f2, f3, val, method='l'):  #Jacobean matrix, set method='a' if val is an array
+    '''
+        Determine the Jacobian matrix of f1, f2 and f3. 
+
+            Parameters: 
+                f1 (function): First function 
+                f2 (function): Second function 
+                f3 (function): Third function 
+                val : Point(s) of evaluation 
+                *method (string): Set method = 'a' if val is an array 
+
+            Return:  
+                matrix(es) (array): Jacobian matrix(es) 
+    '''
+    if method == 'l':
+        n = len(val)
+        x = []
+        for k in range(n):
+            x += [Dual(real=val[k], dual={f'x{k}': 1})]
+        return np.array([[f1(*x).dual[f'x{k}'] for k in range(n)],
+                         [f2(*x).dual[f'x{k}'] for k in range(n)],
+                         [f3(*x).dual[f'x{k}'] for k in range(n)]])
+    elif method == 'a':
+        m, n = np.shape(val)
+        x = []
+        for k in range(n):
+            x += [Dual(real=0, dual={f'x{k}': 1})]
+        xval = val + np.tile(x, (m, 1))
+        return np.array([[[f1(*xval[i]).dual[f'x{k}'] for k in range(n)],
+                          [f2(*xval[i]).dual[f'x{k}'] for k in range(n)],
+                          [f3(*xval[i]).dual[f'x{k}'] for k in range(n)]] for i in range(m)])
+    else:
+        raise Exception('invalid method')
+
 def newt1(f1, F, val, eps=1e-10, n=50): 
     '''
         One-dimension Newtons method for solving f1(x)=F. 
@@ -56,6 +90,7 @@ def newt1(f1, F, val, eps=1e-10, n=50):
             F : Desired output(s) of f1 
             val : Point(s) of initial guess 
             *eps (float): Desired error bound 
+            *n (int): Max iteration number
 
         Return:  
             estimate (float/array): Estimate of solution(s) with the same type as val 
@@ -88,6 +123,7 @@ def newt2(f1, f2, F, val, eps=1e-10, n=100, method='l'):
             F : Desired output(s) of f1, f2 in form of [F1, F2]     
             val : Point(s) of initial guess in form of [val1, val2] 
             *eps (float): Desired error bound 
+            *n (int): Max iteration number
             *method (string): if method = 'a' then F and val must be arrays 
 
         Return:  
@@ -131,7 +167,79 @@ def newt2(f1, f2, F, val, eps=1e-10, n=100, method='l'):
     else:
         raise Exception('invalid method')  
 
-def cont(f1, f2, d2, val, d1=1, F0=[0,1], n=10, m=10): 
+def newt3(f1, f2, f3, F, val, eps=1e-10, n=10000, method='l'):
+    '''
+        Two-dimension Newtons method for solving f1(x)=F1 and f2(x)=F2. 
+
+        Parameters: 
+            f1 (function): First function 
+            f2 (function): Second function 
+            F : Desired output(s) of f1, f2 in form of [F1, F2]     
+            val : Point(s) of initial guess in form of [val1, val2] 
+            *eps (float): Desired error bound 
+            *n (int): Max iteration number
+            *method (string): if method = 'a' then F and val must be arrays 
+
+        Return:  
+            estimate (array): Estimate of solution(s) 
+    '''
+    m = n
+    if method == 'l':
+        #initialisation
+        df = diff3(f1, f2, f3, val).real
+        f = np.array([-f1(*val).real, -f2(*val).real, -f3(*val).real]) + np.array(F)
+        delta = np.linalg.solve(df, f)
+        nval = np.array(val)
+        #loop
+        while np.any(abs(delta) >= eps) and m>0:
+            nval = nval + delta
+            df = diff3(f1, f2, f3, nval).real
+            f = np.array([-f1(*nval).real, -f2(*nval).real, -f3(*nval).real]) + np.array(F)
+            delta = np.linalg.solve(df, f)
+            m -= 1
+        if m > 0:
+            return nval + delta
+        else:
+            raise Exception('max iteration reached')
+    elif method == 'a':
+        #initialisation
+        df = diff3(f1, f2, f3, val, method='a')
+        f = np.array([-f1(*val.T), -f2(*val.T), -f3(*val.T)]).T + np.array(F)
+        delta = np.linalg.solve(df, f)
+        nval = np.array(val)
+        #loop
+        while np.any(abs(delta) >= eps) and m > 0:
+            nval = nval + delta
+            df = diff3(f1, f2, f3, nval, method='a')
+            f = np.array([-f1(*nval.T), -f2(*nval.T), -f3(*nval.T)]).T + np.array(F)
+            delta = np.linalg.solve(df, f)
+            m -= 1
+        if m > 0:
+            return nval + delta
+        else:
+            raise Exception('max iteration reached')
+    else:
+        raise Exception('invalid method')  
+
+def cont1(f, F, val, n=10):
+    '''
+        Continuation method for solving f(x)=F
+
+        Parameters: 
+            f (function): function 
+            val (float) : Point of initial guess 
+            *n (int): Number of steps
+
+        Return:  
+            estimate (array): Estimate of solution 
+    '''
+    x = val
+    s = np.linspace(((n-1)*f(val)+F)/n,F,n)
+    for i in s:
+        x= newt1(f,i,val)
+    return x
+
+def cont2old(f1, f2, d2, val, d1=1, F0=[0,1], n=10, m=10): 
     '''
         Continuation method for solving f1(x)=d1 and f2(x)=d2 using square path along d2 then d1 
 
@@ -159,18 +267,17 @@ def cont(f1, f2, d2, val, d1=1, F0=[0,1], n=10, m=10):
         x = newt2(f1, f2, F, x)
     return x
 
-def cont2(f1, f2, d2, val, d1=1, n=100): 
+def cont2(f1, f2, d1, d2, val, n=100): 
     '''
         Continuation method for solving f1(x)=d1 and f2(x)=d2 using straight line path
 
         Parameters: 
             f1 (function): First function 
             f2 (function): Second function 
+            d1 : Desired output of f1 
             d2 : Desired output of f2 
             val : Point of initial guess in form of [val1, val2] 
-            *d1 : Desired output of f1 
-            *F0 : Output of initial guess in form of [f1(val), f2(val)] 
-            *n (int): Number of iterations
+            *n (int): Number of steps
 
         Return:  
         estimate (float): Estimate of solution 
@@ -182,4 +289,30 @@ def cont2(f1, f2, d2, val, d1=1, n=100):
     for i in range(n):
         F = [t[i], s[i]]
         x = newt2(f1, f2, F, x)
+    return x
+
+def cont3(f1, f2, f3, d1, d2, d3, val, n=10): 
+    '''
+        Continuation method for solving f1(x)=d1, f2(x)=d2 and f3(x)=d3. 
+
+        Parameters: 
+            f1 (function): First function 
+            f2 (function): Second function 
+            f3 (function): Third function 
+            d1 : Desired output of f1 
+            d2 : Desired output of f2 
+            d3 : Desired output of f3 
+            val : Point of initial guess in form of [val1, val2, val3] 
+            *n (int): Number of steps
+
+        Return:  
+        estimate (float): Estimate of solution 
+    '''
+    r = np.linspace(((n-1)*f1(*val)+d1)/n, d1, n)
+    s = np.linspace(((n-1)*f1(*val)+d2)/n, d2, n)
+    t = np.linspace(((n-1)*f1(*val)+d3)/n, d3, n)
+    x = val
+    for i in range(n):
+        F = [r[i], s[i], t[i]]
+        x = newt3(f1, f2,f3, F, x)
     return x
